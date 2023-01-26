@@ -1,41 +1,73 @@
-import { Button, StyleSheet, Text, View } from 'react-native'
+import { Button, Keyboard, KeyboardAvoidingView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useState } from 'react'
 
 import Card from '../components/Card'
 import Input from '../components/Input'
 import colors from '../constants/colors'
 
-const StartGameScreen = () => {
-
+const StartGameScreen = ({onStartGame}) => {
     const [value, setValue] = useState("")
+    const [confirmed, setConfirmed] = useState(false)
+    const [selectedNumber, setselectedNumber] = useState("")
 
     const handleInput = (text) => {
         console.log(text)
         setValue(text.replace(/[^0-9]/g, ""))
     }
+    const handleResetInput = () => {
+        setValue("")
+        setConfirmed(false)
+    }
+    const handleConfirmation = () => {
+        const newValue = parseInt(value)
+        if (newValue === NaN || newValue <= 0 || newValue > 99) return
+
+        setConfirmed(true)
+        setselectedNumber(newValue)
+        setValue("")
+        Keyboard.dismiss()
+    }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Comenzar Juego</Text>
-            <Card>
-                <Text style={styles.subTitle}>Elija un numero</Text>
-                <Input blurOnSubmit autoCapitalize="none"
-                    autoCorrect={false} keyboardType="numeric"
-                    maxLength={2} value={value}
-                    onChangeText={handleInput} />
-                <View style={styles.buttonContainer}>
-                    <Button
-                        color={colors.disableColor}
-                        title='Limpiar'
-                        onPress={() => console.log("limpiar")} />
+        <KeyboardAvoidingView style={{flex:1}}>
+            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+                <View style={styles.container}>
+                    <Text style={styles.title}>Comenzar Juego</Text>
+                    <Card>
+                        <Text style={styles.subTitle}>Elija un numero</Text>
+                        <Input blurOnSubmit autoCapitalize="none"
+                            autoCorrect={false} keyboardType="numeric"
+                            maxLength={2} value={value}
+                            onChangeText={handleInput} />
 
-                    <Button
-                        color={colors.actionColor}
-                        title='Confirmar'
-                        onPress={() => console.log("confirmar")} />
+                        <View style={styles.buttonContainer}>
+                            <Button
+                                color={colors.disableColor}
+                                title='Limpiar'
+                                onPress={handleResetInput} />
+                            <Button
+                                color={colors.actionColor}
+                                title='Confirmar'
+                                onPress={handleConfirmation} />
+                        </View>
+                    </Card>
+                    {confirmed && (
+                        <Card newStyles={styles.selectedCard}>
+                            <Text style={{ color: "black", textDecorationLine: "underline" }}>
+                                Numero elegido es:
+                            </Text>
+                            <Text style={styles.selectedNumber}>
+                                {selectedNumber}
+                            </Text>
+                            <View style={styles.confirmButton}>
+                                <Button title='Comenzar Juego' onPress={() => onStartGame(selectedNumber)} />
+                            </View>
+
+                        </Card>
+                    )}
                 </View>
-            </Card>
-        </View>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     )
 }
 
@@ -68,7 +100,17 @@ const styles = StyleSheet.create({
         width: 100,
     },
     confirmButton: {
-        width: 100,
+        width: "100%",
+        marginTop: 5,
     },
+    selectedCard: {
+        marginTop: 30,
+        width: "50%",
+    },
+    selectedNumber: {
+        color: "black",
+        marginVertical: 20,
+        fontSize: 35
+    }
 
 })

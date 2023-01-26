@@ -3,4 +3,5 @@ export default {
     secondary: "#FFFFFF",
     actionColor: "#039C54",
     disableColor: "#FD5820",
+    start: "#FFF900"
 }
